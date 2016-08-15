@@ -75,14 +75,22 @@ describe 'aws-translators', () ->
       sandbox.restore()
 
     it 'should return an object', () ->
-      promise = lib.deleteItem.call(dynastyTable, 'foo', null, null,
+      promise = lib.deleteItem.call(dynastyTable,'key',
+        conditionExpression: "#use_count = :zero"
+        expressionAttributeValues:
+          ':zero': 0
+      , null,
         hashKeyName: 'bar'
         hashKeyType: 'S'
       )
       expect(promise).to.be.an('object')
 
     it 'should return a promise', () ->
-      promise = lib.deleteItem.call(dynastyTable, 'foo', null, null,
+      promise = lib.deleteItem.call(dynastyTable, 'key',
+        conditionExpression: "#use_count = :zero"
+        expressionAttributeValues:
+          ':zero': 0
+        , null,
         hashKeyName: 'bar'
         hashKeyType: 'S'
       )
@@ -90,7 +98,11 @@ describe 'aws-translators', () ->
 
     it 'should call deleteItem of aws', () ->
       sandbox.spy(dynastyTable.parent.dynamo, "deleteItemAsync")
-      lib.deleteItem.call(dynastyTable, 'foo', null, null,
+      lib.deleteItem.call(dynastyTable, 'key',
+        conditionExpression: "#use_count = :zero"
+        expressionAttributeValues:
+          ':zero': 0
+        , null,
         hashKeyName: 'bar'
         hashKeyType: 'S'
       )
@@ -99,7 +111,11 @@ describe 'aws-translators', () ->
     it 'should send the table name to AWS', () ->
       sandbox.spy(dynastyTable.parent.dynamo, "deleteItemAsync")
 
-      promise = lib.deleteItem.call(dynastyTable, 'foo', null, null,
+      promise = lib.deleteItem.call(dynastyTable, 'key',
+        conditionExpression: "#use_count = :zero"
+        expressionAttributeValues:
+          ':zero': 0
+        , null,
         hashKeyName: 'bar'
         hashKeyType: 'S'
       )
@@ -112,7 +128,11 @@ describe 'aws-translators', () ->
     it 'should send the hash key to AWS', () ->
       sandbox.spy(dynastyTable.parent.dynamo, "deleteItemAsync")
 
-      promise = lib.deleteItem.call(dynastyTable, 'foo', null, null,
+      promise = lib.deleteItem.call(dynastyTable, 'key',
+        conditionExpression: "#use_count = :zero"
+        expressionAttributeValues:
+          ':zero': 0
+        , null,
         hashKeyName: 'bar'
         hashKeyType: 'S'
       )
@@ -121,32 +141,7 @@ describe 'aws-translators', () ->
       params = dynastyTable.parent.dynamo.deleteItemAsync.getCall(0).args[0]
       expect(params.Key).to.include.keys('bar')
       expect(params.Key.bar).to.include.keys('S')
-      expect(params.Key.bar.S).to.equal('foo')
-
-    it 'should send the hash and range key to AWS', () ->
-      sandbox.spy(dynastyTable.parent.dynamo, "deleteItemAsync")
-
-      promise = lib.deleteItem.call(
-        dynastyTable,
-          hash: 'lol'
-          range: 'rofl',
-        null,
-        null,
-          hashKeyName: 'bar'
-          hashKeyType: 'S'
-          rangeKeyName: 'foo'
-          rangeKeyType: 'S')
-
-      expect(dynastyTable.parent.dynamo.deleteItemAsync.calledOnce)
-      params = dynastyTable.parent.dynamo.deleteItemAsync.getCall(0).args[0]
-
-      expect(params.Key).to.include.keys('bar')
-      expect(params.Key.bar).to.include.keys('S')
-      expect(params.Key.bar.S).to.equal('lol')
-
-      expect(params.Key).to.include.keys('foo')
-      expect(params.Key.foo).to.include.keys('S')
-      expect(params.Key.foo.S).to.equal('rofl')
+      expect(params.Key.bar.S).to.equal('key')
 
   describe '#batchGetItem', () ->
 
