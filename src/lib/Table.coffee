@@ -64,6 +64,11 @@ class Table
     @key.then awsTrans.putItem.bind(this, obj, options, callback)
 
   remove: (params, options, callback = null) ->
+    debug "remove() - " + JSON.stringify params
+    if _.isFunction options
+      callback = options
+      options = {}
+
     @key.then awsTrans.deleteItem.bind(this, params, options, callback)
 
   # Wrapper around DynamoDB's updateItem
