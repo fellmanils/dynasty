@@ -76,10 +76,41 @@ getKey = (params, keySchema) ->
   key
 
 module.exports.deleteItem = (params, options, callback, keySchema) ->
+  # console.log 'param,options', params, options
+
+  key = getKey(params, keySchema)
+  # console.log 'key from params an keyschema = ', key
+  expressionAttributeValues = {}
+  # Allow setting arbitrary attribute values
+  if options?.expressionAttributeValues
+    expressionAttributeValues = _.mapValues options.expressionAttributeValues, (value, key) -> dataTrans.toDynamo(value)
+    # expressionAttributeValues = _.mapKeys expressionAttributeValues, (value, key) ->
+      # return options.conditionExpression.split(' = ',1)[0].replace('#',':')
+
+  # Setup ExpressionAttributeNames mapping key -> #key so we don't bump into
+  # reserved words
+  expressionAttributeNames = {}
+  expressionAttributeNames["##{key.replace(':','')}"] = key.replace(':','') for key, i in Object.keys(expressionAttributeValues)
+
+  conditionExpression = options.conditionExpression
+
   awsParams =
     TableName: @name
     Key: getKey(params, keySchema)
-  @parent.dynamo.deleteItemAsync awsParams
+    ExpressionAttributeNames: expressionAttributeNames
+    ExpressionAttributeValues: expressionAttributeValues
+    ConditionExpression: conditionExpression
+
+  # console.log awsParams
+
+  if options?.conditionExpression
+    awsParams.ConditionExpression = options.conditionExpression
+  @parent.dynamo.deleteItemAsync(awsParams)
+
+  # awsParams =
+  #   TableName: @name
+  #   Key: getKey(params, keySchema)
+  # @parent.dynamo.deleteItemAsync awsParams
 
 module.exports.batchGetItem = (params, callback, keySchema) ->
   awsParams = {}
