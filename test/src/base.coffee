@@ -60,7 +60,10 @@ describe 'Dynasty', () ->
     describe 'remove()', () ->
 
       it 'should return an object', () ->
-        promise = @table.remove chance.name()
+        promise = @table.remove chance.name(),
+                                conditionExpression: "#use_count = :zero"
+                                expressionAttributeValues:
+                                  ':zero': 0
         expect(promise).to.be.an('object')
 
     describe 'batchFind()', () ->
